@@ -23,14 +23,6 @@ volatile int tweedeBlokjeNeer = 0;
 volatile int infoEindPosOpgehaald = 0;
 volatile int infoEindPosOpgehaald2 = 0;
 
-// === Crane init ===
-void init_Crane(void) {
-    DDRF = 0b00111100;
-    DDRD = 0b11110011;
-    DDRC = 0b00000000;
-    DDRB = 0b00000000;
-}
-
 // === Timer1 init ===
 void init_timer1(void) {
     TCCR1A = 0;
@@ -68,7 +60,6 @@ ISR(TIMER1_OVF_vect) {
 int main(void) {
     init_timer1();
     keypad_init();
-    init_Crane();
 
     while (1) {
         if ((PIN_pos_XY & (1 << pos_X1)) || (startKnop == 1)) {

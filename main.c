@@ -26,10 +26,9 @@ volatile int infoEindPosOpgehaald2 = 0;
 // === Crane init ===
 void init_Crane(void) {
     DDRF = 0b00111100;
-    DDRD = 0b10000011;
+    DDRD = 0b11110011;
     DDRC = 0b00000000;
     DDRB = 0b00000000;
-    DDRA = 0b00000111;
 }
 
 // === Timer1 init ===

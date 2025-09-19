@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "AVR: build (ATmega2560)",
+      "type": "shell",
+      "command": "/opt/homebrew/bin/avr-gcc",
+      "args": [
+        "-mmcu=atmega2560",
+        "-Os",
+        "-DF_CPU=16000000UL",
+        "-Wall",
+        "-Wextra",
+        "-o", "build/main.elf",
+        "*.c"
+      ],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$gcc",
+      "options": { "shell": { "executable": "bash", "args": ["-lc"] } }
+    },
+    {
+      "label": "AVR: elf→hex",
+      "type": "shell",
+      "command": "/opt/homebrew/bin/avr-objcopy",
+      "args": [
+        "-O", "ihex",
+        "-R", ".eeprom",
+        "build/main.elf",
+        "build/main.hex"
+      ],
+      "dependsOn": "AVR: build (ATmega2560)",
+      "problemMatcher": []
+    }
+  ]
+}

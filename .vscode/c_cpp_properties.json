@@ -1,0 +1,22 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "macOS-AVR",
+      "compilerPath": "/opt/homebrew/bin/avr-gcc",
+      "compilerArgs": ["-mmcu=atmega2560"],
+      "includePath": [
+        "${workspaceFolder}/**",
+        "/opt/homebrew/Cellar/avr-gcc/*/avr/include",
+        "/usr/local/Cellar/avr-gcc/*/avr/include"
+      ],
+      "defines": [
+        "F_CPU=16000000UL",
+        "__AVR_ATmega2560__=1"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-gcc-arm64"
+    }
+  ]
+}

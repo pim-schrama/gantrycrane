@@ -32,7 +32,7 @@ void init_Crane(void) {
     DDRD = 0b10000011;
     DDRC = 0b00000000;
     DDRB = 0b00000000;
-    DDRA = 0b00000111;
+    DDRA = 0b00001111;
 
 // === Interne pull-ups ===
 
@@ -49,6 +49,8 @@ void init_Crane(void) {
     PORT_pos_XY |= (1 << pos_Y3);
     PORT_pos_Y |= (1 << pos_Y4);
     PORT_pos_Y |= (1 << pos_Y5);
+    PORT_pos_Z |= (1 << pos_Z);
+    PORT_pos_Z |= (1 << pos_Z2);
 
     printf("init_crane_out\n");
 }
@@ -163,6 +165,6 @@ int main(void) {
     return 0;
 }
 
-//to do:
+//to do: logic motoren omdraaien
 
 

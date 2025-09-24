@@ -64,6 +64,9 @@ extern volatile int heenTerug;
 
 // switches Z-pos
 #define pos_Z PA0
+#define pos_Z2 PA1
+
+#define PORT_pos_Z  PORTA
 
 // H-brug pinnen x/y
 #define pinHBrug_RechtsOm_X PF2
@@ -75,8 +78,8 @@ extern volatile int heenTerug;
 #define portHBrug_Y PORTF
 
 // H-brug pinnen z
-#define pinHBrug_RechtsOm_Z PA1
-#define pinHBrug_LinksOm_Z PA2
+#define pinHBrug_RechtsOm_Z PA2
+#define pinHBrug_LinksOm_Z PA3
 
 #define portHBrug_Z PORTD
 

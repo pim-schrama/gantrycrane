@@ -94,19 +94,9 @@ extern volatile int heenTerug;
 #define ROW_PIN  PIND
 #define ROW_DDR  DDRD
 
-#define Pin_Row_line1 PD0
-#define Pin_Row_line2 PD1
-#define Pin_Row_line3 PD2
-#define Pin_Row_line4 PD3
-
 #define COL_PORT PORTC
 #define COL_PIN  PINC
 #define COL_DDR  DDRC
-
-#define Pin_Col_line1 PC0
-#define Pin_Col_line2 PC1
-#define Pin_Col_line3 PC2
-#define Pin_Col_line4 PC3
 
 // === Enums ===
 

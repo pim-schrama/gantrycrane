@@ -66,11 +66,11 @@ void init_timer1(void) {
 
 // === Keypad init ===
 void keypad_init(void) {
-    ROW_DDR  |= 0x0F;   // PD0–PD3 output
-    ROW_PORT &= ~0x0F;  // PD0–PD3 laag
+    ROW_DDR  |= 0x0F;   // PD0–PD3 as outputs
+    ROW_PORT |= 0x0F;   // default HIGH (inactive)
 
-    COL_DDR  &= ~0x0F;  // PC0–PC3 input
-    COL_PORT |= 0x0F;   // pull-ups aan op PC0–PC3
+    COL_DDR  &= ~0x0F;  // PC0–PC3 as inputs
+    COL_PORT |= 0x0F;   // enable pull-ups
 
     printf("init_keypad_out\n");
 }
@@ -129,9 +129,9 @@ int main(void) {
 
     printf("Boot OK\n");
 
-    keypad_init();
     init_Crane();
     init_timer1();
+    keypad_init();
 
     while (1) {
         if (((PINF & (1 << pinStartKnop)) == 0) || (startKnop == 1)) {

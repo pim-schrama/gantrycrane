@@ -3,6 +3,8 @@
 #include <avr/interrupt.h>
 #include "gridfinding_def.h"
 
+int lastKey = -1;
+
 enum InputState {
     IDLE,
     PICKUP_X,
@@ -228,10 +230,14 @@ void pickUp_and_DropOff_pos(void) {
     if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
         while (!infoEindPosOpgehaald) {
             int key = keypad_getkey();
-            if (key != -1) {
+            if (key != -1 && key != lastKey) {
                 processKey(key);
-                _delay_ms(200); // crude debounce
+                lastKey = key;     // latch this key
             }
+            if (key == -1) {
+                lastKey = -1;      // reset latch when released
+            }
+
         }
 
     }
@@ -241,10 +247,14 @@ void pickUp_and_DropOff_pos(void) {
     if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
         while (!(infoEindPosOpgehaald && infoEindPosOpgehaald2)) {
             int key = keypad_getkey();
-            if (key != -1) {
+            if (key != -1 && key != lastKey) {
                 processKey(key);
-                _delay_ms(200); // crude debounce
+                lastKey = key;     // latch this key
             }
+            if (key == -1) {
+                lastKey = -1;      // reset latch when released
+            }
+
         }
     }
 

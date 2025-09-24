@@ -55,6 +55,7 @@ void eindProgramma(void){
 }
 
 int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
+    printf("motorZ_in\n");
     if(opNeer == 1){
         while ((PIN_pos_Z & (1 << pos_Z)) == 0) portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
         portHBrug_Z |=  (1 << pinHBrug_RechtsOm_Z);

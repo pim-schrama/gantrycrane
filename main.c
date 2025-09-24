@@ -142,7 +142,7 @@ int main(void) {
 
             if((infoEindPosOpgehaald == 0) || (infoEindPosOpgehaald2 == 0)) pickUp_and_DropOff_pos();
 
-            if(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord)){
+            if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))){
                 if ((infoEindPosOpgehaald == 1) && (startSlot == 1) && (infoEindPosOpgehaald2 == 1)) {
                     motorX(xNu_TOV_xEind(xNu, xEind));
                     motorY(yNu_TOV_yEind(yNu, yEind));

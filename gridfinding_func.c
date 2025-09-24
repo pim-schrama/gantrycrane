@@ -35,6 +35,7 @@ int motorX(int richting) {
 }
 
 int motorY(int richting) {
+    printf("motorY_in\n");
     switch (richting) {
         case 0: // rechtsom
             while (yNu != yEind) portHBrug_Y &= ~(1 << pinHBrug_RechtsOm_Y);

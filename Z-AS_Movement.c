@@ -11,7 +11,8 @@ void coordSwitch(void){
         case 0:
             xEind = xEindDropOf;
             yEind = yEindDropOf;
-            if(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord)){
+            if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
+                // switch pressed = ON = two coordinates
                 coordSwitchCount = 1;
                 tweedeBlokjeNeer = 1;
             }
@@ -33,8 +34,8 @@ void coordSwitch(void){
             heenTerug = 2;
         break;
     }
-
 }
+
 
 int oppakProgramma(enum MagnetState state){
     if(state == Get) { portMagneet |= (1 << pinMagneet); printf("magneet_aan\n");}
@@ -47,6 +48,7 @@ void eindProgramma(void){
     printf("Eindprogramma\n");
     heenTerug = 1;
     coordSwitchCount = 0;
+    tweedeBlokjeNeer = 0;
     infoEindPosOpgehaald = 0;
     infoEindPosOpgehaald2 = 0;
     homeSender();
@@ -83,11 +85,16 @@ int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging
         while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
         portHBrug_Z |=  (1 << pinHBrug_RechtsOm_Z);
 
-        if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))){
-           eindProgramma();
-        }else  if((tweedeBlokjeNeer == 0) && !(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))){
-                    eindProgramma();
+        coordSwitch();
+
+        if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
+
+            eindProgramma();
+        } else if((tweedeBlokjeNeer == 0) && (!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord)))) {
+
+            eindProgramma();
         }
+
 
 
     }

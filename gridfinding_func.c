@@ -15,7 +15,7 @@ int yNu_TOV_yEind(int nu, int eind) {
 }
 
 // Motorsturing
-int motorX(int richting) {
+/*int motorX(int richting) {
     printf("motorX_in\n");
     switch (richting) {
         case 0: // rechtsom
@@ -32,9 +32,33 @@ int motorX(int richting) {
         default:
             return 0;
     }
+}*/
+
+int motorX(int richting) {
+    // Beide kanten eerst uit
+    portHBrug_X &= ~((1 << pinHBrug_RechtsOm_X) | (1 << pinHBrug_LinksOm_X));
+
+    switch (richting) {
+        case 0: // rechtsom
+            portHBrug_X |= (1 << pinHBrug_RechtsOm_X);
+            break;
+
+        case 1: // linksom
+            portHBrug_X |= (1 << pinHBrug_LinksOm_X);
+            break;
+
+        case 2: // stil
+            portHBrug_X &= ~((1 << pinHBrug_RechtsOm_X) | (1 << pinHBrug_LinksOm_X));
+            break;
+
+        default:
+            // alles al uit, niets doen
+            return 0;
+    }
 }
 
-int motorY(int richting) {
+
+/*int motorY(int richting) {
     printf("motorY_in\n");
     switch (richting) {
         case 0: // rechtsom
@@ -51,26 +75,64 @@ int motorY(int richting) {
         default:
             return 0;
     }
+}*/
+
+int motorY(int richting) {
+    // Beide kanten eerst uit
+    portHBrug_Y &= ~((1 << pinHBrug_RechtsOm_Y) | (1 << pinHBrug_LinksOm_Y));
+
+    switch (richting) {
+        case 0: // rechtsom
+            portHBrug_Y |= (1 << pinHBrug_RechtsOm_Y);
+            break;
+
+        case 1: // linksom
+            portHBrug_Y |= (1 << pinHBrug_LinksOm_Y);
+            break;
+
+        case 2: // stil
+            portHBrug_Y &= ~((1 << pinHBrug_RechtsOm_Y) | (1 << pinHBrug_LinksOm_Y));
+            break;
+
+        default:
+            // alles al uit, niets doen
+            return 0;
+    }
 }
+
 
 // Machine naar (1,1) sturen
 void homeSender(void) {
-    printf("homesender_in\n");
-    while (xNu != 1) portHBrug_X &= ~(1 << pinHBrug_LinksOm_X);
-    portHBrug_X |=  (1 << pinHBrug_LinksOm_X);
 
-    while (yNu != 1) portHBrug_Y &= ~(1 << pinHBrug_LinksOm_Y);
-    portHBrug_Y |=  (1 << pinHBrug_LinksOm_Y);
+    int homeX = 0 , homeY = 0;
 
+    while(homeX != 1 && homeY != 1){
+        printf("homesender_in\n");
+
+        if (xNu != 1) portHBrug_X |= (1 << pinHBrug_LinksOm_X);
+
+        if (xNu == 1) {
+            portHBrug_X &= ~(1 << pinHBrug_LinksOm_X);
+            homeX = 1;
+        }
+
+        if (yNu != 1) portHBrug_Y |= (1 << pinHBrug_LinksOm_Y);
+
+        if (yNu == 1) {
+            portHBrug_Y &= ~(1 << pinHBrug_LinksOm_Y);
+            homeY = 1;
+        }
+
+    }
     portHBrug_X &=  ~(1 << pinHBrug_LinksOm_X);
-    portHBrug_X &=  ~(1 << pinHBrug_LinksOm_Y);
+    portHBrug_Y &=  ~(1 << pinHBrug_LinksOm_Y);
 
     homeSenderDone = 1;
 
     printf("homesender_out\n");
 }
 
-void motorenUit(void){
+/*void motorenUit(void){
     portHBrug_X |=  (1 << pinHBrug_RechtsOm_X);
     portHBrug_X |=  (1 << pinHBrug_LinksOm_X);
     portHBrug_Y |=  (1 << pinHBrug_RechtsOm_Y);
@@ -79,4 +141,13 @@ void motorenUit(void){
     portHBrug_Z |=  (1 << pinHBrug_LinksOm_Z);
 
     portMagneet &= ~(1 << pinMagneet);
+}*/
+
+void motorenUit(void){
+    portHBrug_X &= ~((1 << pinHBrug_RechtsOm_X) | (1 << pinHBrug_LinksOm_X));
+    portHBrug_Y &= ~((1 << pinHBrug_RechtsOm_Y) | (1 << pinHBrug_LinksOm_Y));
+    portHBrug_Z &= ~((1 << pinHBrug_RechtsOm_Z) | (1 << pinHBrug_LinksOm_Z));
+
+    portMagneet &= ~(1 << pinMagneet);
 }
+

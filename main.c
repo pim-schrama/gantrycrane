@@ -146,13 +146,24 @@ int main(void) {
 
             if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))){
                 if ((infoEindPosOpgehaald == 1) && (startSlot == 1) && (infoEindPosOpgehaald2 == 1)) {
-                    motorX(xNu_TOV_xEind(xNu, xEind));
-                    motorY(yNu_TOV_yEind(yNu, yEind));
+                   while((xNu != xEind) && (yNu != yEind)){
+                        motorX(xNu_TOV_xEind(xNu, xEind));
+                        motorY(yNu_TOV_yEind(yNu, yEind));
+                   }
+
+                   portHBrug_X &= ~((1 << pinHBrug_RechtsOm_X) | (1 << pinHBrug_LinksOm_X));
+                   portHBrug_Y &= ~((1 << pinHBrug_RechtsOm_Y) | (1 << pinHBrug_LinksOm_Y));
+
                 }
             }else{
                 if ((infoEindPosOpgehaald == 1) && (startSlot == 1)) {
-                    motorX(xNu_TOV_xEind(xNu, xEind));
-                    motorY(yNu_TOV_yEind(yNu, yEind));
+                    while((xNu != xEind) && (yNu != yEind)){
+                        motorX(xNu_TOV_xEind(xNu, xEind));
+                        motorY(yNu_TOV_yEind(yNu, yEind));
+                   }
+
+                   portHBrug_X &= ~((1 << pinHBrug_RechtsOm_X) | (1 << pinHBrug_LinksOm_X));
+                   portHBrug_Y &= ~((1 << pinHBrug_RechtsOm_Y) | (1 << pinHBrug_LinksOm_Y));
                 }
             }
 

@@ -62,28 +62,28 @@ int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging
     printf("motorZ_in\n");
     if(opNeer == 1){
         printf("Z_oppak_beneden\n");
-        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
-        portHBrug_Z |=  (1 << pinHBrug_RechtsOm_Z);
+        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
+        portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
 
         oppakProgramma(opNeer); //object vast
 
         printf("Z_oppak_omhoog\n");
-        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
-        portHBrug_Z |=  (1 << pinHBrug_LinksOm_Z);
+        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
 
         coordSwitch();
     }
 
     if(opNeer == 2){
         printf("Z_neerzet_beneden\n");
-        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
-        portHBrug_Z |=  (1 << pinHBrug_LinksOm_Z);
+        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
 
         oppakProgramma(opNeer); //object los
 
         printf("Z_neerzet_omhoog\n");
-        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
-        portHBrug_Z |=  (1 << pinHBrug_RechtsOm_Z);
+        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
+        portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
 
         coordSwitch();
 

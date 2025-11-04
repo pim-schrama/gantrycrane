@@ -80,6 +80,7 @@ void keypad_init(void) {
 // === Timer ISR ===
 ISR(TIMER1_OVF_vect) {
     if ((PIN_NoodKnop & (1 << pinNoodKnop)) == 0){
+        motorenUit();
         printf("Nood_in\n");
     }else{
        // printf("ISR_OUT\n");
@@ -176,6 +177,11 @@ int main(void) {
     return 0;
 }
 
-//to do: logic motoren omdraaien
+//to do: noodknop laten wachten.
+//       4 extra knoppen voor als motor (voor welke reden ook) het einde berijkt.
+//       (moet in alle motor loops met een break; of een lijn die de code uit zet.
+//       extra: een max tijd dat de magneet aan mag bijven tegen oververhitting.
+//       extra: gelijdelijke stop voor motor (tegen het schudden.)
+//
 
 

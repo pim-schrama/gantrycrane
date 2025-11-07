@@ -106,8 +106,8 @@ void homeSender(void) {
 
     int homeX = 0 , homeY = 0;
 
-    while(homeX != 1 && homeY != 1){
-        printf("homesender_in\n");
+    while(homeX != 1 || homeY != 1){
+                                                                              printf("homesender_in\n");
 
         if (xNu != 1) portHBrug_X |= (1 << pinHBrug_LinksOm_X);
 
@@ -129,7 +129,7 @@ void homeSender(void) {
 
     homeSenderDone = 1;
 
-    printf("homesender_out\n");
+                                                                             printf("homesender_out\n");
 }
 
 /*void motorenUit(void){

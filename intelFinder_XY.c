@@ -44,46 +44,46 @@ enum InputState inputState = IDLE;
 void xNuFinder(void) {
     if ((PIN_pos_XY & (1 << pos_X1)) == 0) {
         xNu = 1;
-        printf("xNu_1\n");
+                                                                         printf("xNu_1\n");
     }
     if ((PIN_pos_XY & (1 << pos_X2)) == 0) {
         xNu = 2;
-        printf("xNu_2\n");
+                                                                         printf("xNu_2\n");
     }
     if ((PIN_pos_XY & (1 << pos_X3)) == 0) {
         xNu = 3;
-        printf("xNu_3\n");
+                                                                         printf("xNu_3\n");
     }
     if ((PIN_pos_XY & (1 << pos_X4)) == 0) {
         xNu = 4;
-        printf("xNu_4\n");
+                                                                         printf("xNu_4\n");
     }
     if ((PIN_pos_XY & (1 << pos_X5)) == 0) {
         xNu = 5;
-        printf("xNu_5\n");
+                                                                         printf("xNu_5\n");
     }
 }
 
 void yNuFinder(void) {
     if ((PIN_pos_XY & (1 << pos_Y1)) == 0) {
         yNu = 1;
-        printf("yNu_1\n");
+                                                                         printf("yNu_1\n");
     }
     if ((PIN_pos_XY & (1 << pos_Y2)) == 0) {
         yNu = 2;
-        printf("yNu_2\n");
+                                                                         printf("yNu_2\n");
     }
     if ((PIN_pos_XY & (1 << pos_Y3)) == 0) {
         yNu = 3;
-        printf("yNu_3\n");
+                                                                         printf("yNu_3\n");
     }
     if ((PIN_pos_Y  & (1 << pos_Y4)) == 0) {
         yNu = 4;
-        printf("yNu_4\n");
+                                                                         printf("yNu_4\n");
     }
     if ((PIN_pos_Y  & (1 << pos_Y5)) == 0) {
         yNu = 5;
-        printf("yNu_5\n");
+                                                                         printf("yNu_5\n");
     }
 }
 
@@ -129,16 +129,16 @@ void processKey(int key) {
                 break; // already done
             }
             if (key == A) {
-                printf("A pressed\n");
+                                                                                     printf("A pressed\n");
                 inputState = PICKUP_X;
             } else if (key == B) {
-                printf("B pressed\n");
+                                                                                     printf("B pressed\n");
                 inputState = DROPOFF_X;
             } else if (key == C) {
-                printf("C pressed\n");
+                                                                                     printf("C pressed\n");
                 inputState = PICKUP_X2;
             } else if (key == D) {
-                printf("D pressed\n");
+                                                                                     printf("D pressed\n");
                 inputState = DROPOFF_X2;
             }
             break;
@@ -147,7 +147,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 xEind = num;
-                printf("Pickup X = %d\n", xEind);
+                                                                                     printf("Pickup X = %d\n", xEind);
                 inputState = PICKUP_Y;
             }
             break;
@@ -156,7 +156,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 yEind = num;
-                printf("Pickup Y = %d\n", yEind);
+                                                                                     printf("Pickup Y = %d\n", yEind);
                 inputState = IDLE;
             }
             break;
@@ -166,7 +166,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 xEindDropOf = num;
-                printf("Dropoff X = %d\n", xEindDropOf);
+                                                                                     printf("Dropoff X = %d\n", xEindDropOf);
                 inputState = DROPOFF_Y;
             }
             break;
@@ -175,7 +175,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 yEindDropOf = num;
-                printf("Dropoff Y = %d\n", yEindDropOf);
+                                                                                     printf("Dropoff Y = %d\n", yEindDropOf);
                 infoEindPosOpgehaald = 1;
                 inputState = IDLE;
             }
@@ -186,7 +186,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 xEind2 = num;
-                printf("Pickup2 X = %d\n", xEind2);
+                                                                                     printf("Pickup2 X = %d\n", xEind2);
                 inputState = PICKUP_Y2;
             }
             break;
@@ -195,7 +195,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 yEind2 = num;
-                printf("Pickup2 Y = %d\n", yEind2);
+                                                                                     printf("Pickup2 Y = %d\n", yEind2);
                 inputState = IDLE;
             }
             break;
@@ -205,7 +205,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 xEindDropOf2 = num;
-                printf("Dropoff2 X = %d\n", xEindDropOf2);
+                                                                                     printf("Dropoff2 X = %d\n", xEindDropOf2);
                 inputState = DROPOFF_Y2;
             }
             break;
@@ -214,7 +214,7 @@ void processKey(int key) {
             int num = key_to_number(key);
             if (num != -1) {
                 yEindDropOf2 = num;
-                printf("Dropoff2 Y = %d\n", yEindDropOf2);
+                                                                                     printf("Dropoff2 Y = %d\n", yEindDropOf2);
                 infoEindPosOpgehaald2 = 1;
                 inputState = IDLE;
             }
@@ -224,8 +224,7 @@ void processKey(int key) {
 }
 
 void pickUp_and_DropOff_pos(void) {
-    printf("Waiting for coordinates...\n");
-    cli();
+                                                                                     printf("Waiting for coordinates...\n");
     // ✅ block until both coordinate pairs are filled
     if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
         while (!infoEindPosOpgehaald) {
@@ -258,8 +257,8 @@ void pickUp_and_DropOff_pos(void) {
         }
     }
 
-    printf("All coordinates received!\n");
-    sei();
+                                                                                         printf("All coordinates received!\n");
+
     startSlot = 1;
 }
 

@@ -3,6 +3,10 @@
 
 #include <avr/io.h>
 
+#define F_CPU 16000000UL
+
+#include <stdio.h>
+
 // === Globale variabelen ===
 extern volatile int xNu;
 extern volatile int yNu;
@@ -32,8 +36,8 @@ extern volatile int heenTerug;
 #define portStartKnop PORTF
 
 // === Pinnen magneet ===
-#define pinMagneet PD7
-#define portMagneet PORTD
+#define pinMagneet PF6
+#define portMagneet PORTF
 
 // === Pinnen noodknop ===
 #define pinNoodKnop PC4
@@ -81,7 +85,7 @@ extern volatile int heenTerug;
 #define pinHBrug_RechtsOm_Z PA2
 #define pinHBrug_LinksOm_Z PA3
 
-#define portHBrug_Z PORTD
+#define portHBrug_Z PORTA
 
 // pin check
 #define PIN_pos_XY  PINB
@@ -97,9 +101,9 @@ extern volatile int heenTerug;
 #define ROW_PIN  PIND
 #define ROW_DDR  DDRD
 
-#define COL_PORT PORTC
-#define COL_PIN  PINC
-#define COL_DDR  DDRC
+#define COL_PORT PORTL
+#define COL_PIN  PINL
+#define COL_DDR  DDRL
 
 // === Enums ===
 
@@ -143,6 +147,42 @@ void eindProgramma(void);
 
 // Timer
 void init_timer1(void);
+
+
+
+// ---------- UART0 setup (logging) ----------
+static void usart0_init(uint32_t baud)
+{
+    UCSR0A = _BV(U2X0); // normal speed
+    uint16_t ubrr = (F_CPU / (8UL * baud)) - 1;
+
+
+    //uint16_t ubrr = (F_CPU / (16UL * baud)) - 1;
+    //UCSR0A = 0; // normal speed
+    UBRR0H = (uint8_t)(ubrr >> 8);
+    UBRR0L = (uint8_t)(ubrr);
+    UCSR0B = _BV(TXEN0) | _BV(RXEN0);          // enable TX,RX
+    UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);        // 8 data, 1 stop, no parity
+}
+
+static void usart0_write_char(char c)
+{
+    while (!(UCSR0A & _BV(UDRE0))) { }         // wait until ready
+    UDR0 = c;
+}
+
+// Glue so printf works
+static int usart0_putchar(char c, FILE *stream)
+{
+    if (c == '\n') {
+        usart0_write_char('\r');
+    }
+    usart0_write_char(c);
+    return 0;
+}
+
+// Declare a FILE object
+static FILE usart0_stdout = FDEV_SETUP_STREAM(usart0_putchar, NULL, _FDEV_SETUP_WRITE);
 
 
 #endif

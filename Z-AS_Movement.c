@@ -5,7 +5,7 @@
 int coordSwitchCount = 0;
 
 void coordSwitch(void){
-    printf("coord_switch\n");
+                                                                                         printf("coord_switch\n");
     switch(coordSwitchCount){
 
         case 0:
@@ -38,14 +38,13 @@ void coordSwitch(void){
 
 
 int oppakProgramma(enum MagnetState state){
-    if(state == Get) { portMagneet |= (1 << pinMagneet); printf("magneet_aan\n");}
-    if(state == Drop) { portMagneet &= ~(1 << pinMagneet); printf("magneet_uit\n");}
-
+    if(state == Get) { portMagneet |= (1 << pinMagneet);                                             printf("magneet_aan\n");}
+    if(state == Drop) { portMagneet &= ~(1 << pinMagneet);                                           printf("magneet_uit\n");}
     return 0;
 }
 
 void eindProgramma(void){
-    printf("Eindprogramma\n");
+                                                                                                     printf("Eindprogramma\n");
     heenTerug = 1;
     coordSwitchCount = 0;
     tweedeBlokjeNeer = 0;
@@ -58,34 +57,35 @@ void eindProgramma(void){
     startKnop = 0;
 }
 
-int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
-    printf("motorZ_in\n");
-    if(opNeer == 1){
-        printf("Z_oppak_beneden\n");
-        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
+void zRoutine(opNeer){
+                                                                                                    printf("Z_beneden\n");
+        while ((PIN_pos_Z & (1 << pos_Z))!=0){
+            portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
+        }
         portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
 
         oppakProgramma(opNeer); //object vast
 
-        printf("Z_oppak_omhoog\n");
-        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+        while((PIN_pos_Z & (1 << pos_Z))==0) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+
+        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
+                                                                                                     printf("Z_omhoog\n");
+        while ((PIN_pos_Z & (1 << pos_Z))!=0) {
+                portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+        }
         portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
 
         coordSwitch();
-    }
+
+}
+
+int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
+                                                                                                     printf("motorZ_in\n");
+    if(opNeer == 1) zRoutine(opNeer);
 
     if(opNeer == 2){
-        printf("Z_neerzet_beneden\n");
-        while ((PIN_pos_Z & (1 << pos_Z))) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
-        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
 
-        oppakProgramma(opNeer); //object los
-
-        printf("Z_neerzet_omhoog\n");
-        while ((PIN_pos_Z & (1 << pos_Z2))) portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
-        portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
-
-        coordSwitch();
+        zRoutine(opNeer);
 
         if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
 
@@ -94,9 +94,7 @@ int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging
 
             eindProgramma();
         }
-
-
-
     }
     return 0;
 }
+

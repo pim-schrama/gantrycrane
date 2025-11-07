@@ -52,7 +52,7 @@ void init_Crane(void) {
     PORT_pos_Z |= (1 << pos_Z);
     PORT_pos_Z |= (1 << pos_Z2);
 
-    printf("init_crane_out\n");
+                                                             printf("init_crane_out\n");
 }
 
 // === Timer1 init ===
@@ -63,7 +63,7 @@ void init_timer1(void) {
     sei();
     TCNT1 = 63973;       // startwaarde voor ~10 ms
 
-    printf("init_timer_out\n");
+                                                             printf("init_timer_out\n");
 }
 
 // === Keypad init ===
@@ -74,63 +74,33 @@ void keypad_init(void) {
     COL_DDR  &= ~0x0F;  // PC0–PC3 as inputs
     COL_PORT |= 0x0F;   // enable pull-ups
 
-    printf("init_keypad_out\n");
+                                                             printf("init_keypad_out\n");
 }
 
 // === Timer ISR ===
 ISR(TIMER1_OVF_vect) {
     if ((PIN_NoodKnop & (1 << pinNoodKnop)) == 0){
-        motorenUit();
-        printf("Nood_in\n");
+        while((PIN_NoodKnop & (1 << pinNoodKnop)) == 0){
+            motorenUit();
+            if((PIN_NoodKnop & (1 << pinNoodKnop)) != 0)break;
+        }
+
+                                                             printf("Nood_in\n");
     }else{
-       // printf("ISR_OUT\n");
+                                                            // printf("ISR_OUT\n");
         xNuFinder();
         yNuFinder();
     }
     TCNT1 = 63973; // reset timer
 }
 
-// ---------- UART0 setup ----------
-static void usart0_init(uint32_t baud)
-{
-    UCSR0A = _BV(U2X0); // normal speed
-    uint16_t ubrr = (F_CPU / (8UL * baud)) - 1;
-
-
-    //uint16_t ubrr = (F_CPU / (16UL * baud)) - 1;
-    //UCSR0A = 0; // normal speed
-    UBRR0H = (uint8_t)(ubrr >> 8);
-    UBRR0L = (uint8_t)(ubrr);
-    UCSR0B = _BV(TXEN0) | _BV(RXEN0);          // enable TX,RX
-    UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);        // 8 data, 1 stop, no parity
-}
-
-static void usart0_write_char(char c)
-{
-    while (!(UCSR0A & _BV(UDRE0))) { }         // wait until ready
-    UDR0 = c;
-}
-
-// Glue so printf works
-static int usart0_putchar(char c, FILE *stream)
-{
-    if (c == '\n') {
-        usart0_write_char('\r');
-    }
-    usart0_write_char(c);
-    return 0;
-}
-
-// Declare a FILE object
-static FILE usart0_stdout = FDEV_SETUP_STREAM(usart0_putchar, NULL, _FDEV_SETUP_WRITE);
-
 // === Main loop ===
 int main(void) {
 
-    usart0_init(115200);
-    stdout = &usart0_stdout; // enable printf to UART;
+                                                                                     usart0_init(115200);
+                                                                                     stdout = &usart0_stdout; // enable printf to UART;
 
-    printf("Boot OK\n");
+                                                                                     printf("Boot OK\n");
 
     init_Crane();
     init_timer1();
@@ -138,7 +108,7 @@ int main(void) {
 
     while (1) {
         if (((PINF & (1 << pinStartKnop)) == 0) || (startKnop == 1)) {
-            printf("Startknop\n");
+                                                                                                         printf("Startknop\n");
             startKnop = 1;
 
             if (homeSenderDone == 0) homeSender();
@@ -147,7 +117,7 @@ int main(void) {
 
             if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))){
                 if ((infoEindPosOpgehaald == 1) && (startSlot == 1) && (infoEindPosOpgehaald2 == 1)) {
-                   while((xNu != xEind) && (yNu != yEind)){
+                   while((xNu != xEind) || (yNu != yEind)){
                         motorX(xNu_TOV_xEind(xNu, xEind));
                         motorY(yNu_TOV_yEind(yNu, yEind));
                    }
@@ -158,7 +128,7 @@ int main(void) {
                 }
             }else{
                 if ((infoEindPosOpgehaald == 1) && (startSlot == 1)) {
-                    while((xNu != xEind) && (yNu != yEind)){
+                    while((xNu != xEind) || (yNu != yEind)){
                         motorX(xNu_TOV_xEind(xNu, xEind));
                         motorY(yNu_TOV_yEind(yNu, yEind));
                    }
@@ -177,11 +147,15 @@ int main(void) {
     return 0;
 }
 
-//to do: noodknop laten wachten.
+//to do: noodknop laten wachten. en eventueel ledje laten knipperen
 //       4 extra knoppen voor als motor (voor welke reden ook) het einde berijkt.
+
+//       ampere sensor ipv 2 knoppen op z-as
+
 //       (moet in alle motor loops met een break; of een lijn die de code uit zet.
 //       extra: een max tijd dat de magneet aan mag bijven tegen oververhitting.
 //       extra: gelijdelijke stop voor motor (tegen het schudden.)
-//
+
+//       pos_Z & pos_Z2 inpluggen en een led ipv magneet
 
 

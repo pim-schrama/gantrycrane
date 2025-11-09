@@ -79,10 +79,10 @@ void keypad_init(void) {
 
 // === Timer ISR ===
 ISR(TIMER1_OVF_vect) {
-    if ((PIN_NoodKnop & (1 << pinNoodKnop)) == 0){
-        while((PIN_NoodKnop & (1 << pinNoodKnop)) == 0){
+    if ((PIN_NoodKnop & (1 << pinNoodKnop)) != 0){
+        while((PIN_NoodKnop & (1 << pinNoodKnop)) != 0){
             motorenUit();
-            if((PIN_NoodKnop & (1 << pinNoodKnop)) != 0)break;
+            if((PIN_NoodKnop & (1 << pinNoodKnop)) == 0)break;
         }
 
                                                              printf("Nood_in\n");

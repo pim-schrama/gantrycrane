@@ -8,89 +8,107 @@
 #include <stdio.h>
 
 // === Globale variabelen ===
-extern volatile int xNu;
-extern volatile int yNu;
-extern volatile int xEind;
-extern volatile int yEind;
+extern volatile int xNow;
+extern volatile int yNow;
+extern volatile int xEnd;
+extern volatile int yEnd;
 
-extern volatile int xEindDropOf;
-extern volatile int yEindDropOf;
+extern volatile int xEndDropOff;
+extern volatile int yEndDropOff;
 
-extern volatile int xEind2, yEind2;
-extern volatile int xEindDropOf2, yEindDropOf2;
+extern volatile int xEnd2, yEnd2;
+extern volatile int xEndDropOff2, yEndDropOff2;
 
-extern volatile int tweedeBlokjeNeer;
+extern volatile int secondObjectDown;
 
-extern volatile int infoEindPosOpgehaald;
-extern volatile int infoEindPosOpgehaald2;
+extern volatile int inputEndPosRetrieved;
+extern volatile int inputEndPosRetrieved2;
 extern volatile int homeSenderDone;
 
-extern volatile int startKnop;
-extern volatile int startSlot;
+extern volatile int startButton;
+extern volatile int startBlock;
 
-extern volatile int heenTerug;
+extern volatile int backAndForth;
 
+// === Manual ints ===
+extern volatile int centerY;
+extern volatile int centerX;
+
+extern volatile int adcY;
+extern volatile int valueY;
+
+extern volatile int adcX;
+extern volatile int valueX;
+
+extern volatile int ampereSensor;
+extern volatile float currentZAxis;
+extern volatile float voltageZAxis;
+
+// === Pinnen manual ===
+#define pin_Manual PF3
+#define PORT_Manual PORTF
+#define PIN_Manual PINF
 
 // === Pinnen start ===
-#define pinStartKnop PF6
-#define portStartKnop PORTF
+#define pin_StartButton PF1
+#define port_StartButton PORTF
+#define PIN_StartButton PINF
 
 // === Pinnen magneet ===
-#define pinMagneet PF6
-#define portMagneet PORTF
+#define pin_Magnet PF6
+#define port_Magnet PORTF
 
 // === Pinnen noodknop ===
-#define pinNoodKnop PC4
-#define portNoodKnop PORTC
-#define PIN_NoodKnop  PINC
+#define pin_EmergencyButton PF0
+#define port_EmergencyButton PORTF
+#define PIN_EmergencyButton  PINF
 
 // === Pinnen switch tweede coordinaten ===
-#define pinSwitchTweedeCoord PC5
-#define portSwitchTweedeCoord PORTC
-#define PIN_SwitchTweedeCoord  PINC
+#define pin_SwitchSecondCoord PF5
+#define port_SwitchSecondCoord PORTF
+#define PIN_SwitchSecondCoord  PINF
 
 // switches X-pos
-#define pos_X1 PB0
-#define pos_X2 PB1
-#define pos_X3 PB2
-#define pos_X4 PB3
-#define pos_X5 PB4
+#define pos_X1 PA1
+#define pos_X2 PA3
+#define pos_X3 PA5
+#define pos_X4 PA0
+#define pos_X5 PA2
 
 // switches Y-pos
-#define pos_Y1 PB5
-#define pos_Y2 PB6
-#define pos_Y3 PB7
-#define pos_Y4 PF0
-#define pos_Y5 PF1
+#define pos_Y1 PA7
+#define pos_Y2 PC6
+#define pos_Y3 PC4
+#define pos_Y4 PA6
+#define pos_Y5 PC7
 
-#define PORT_pos_XY PORTB
-#define PORT_pos_Y  PORTF
+#define port_pos_XY PORTA
+#define port_pos_Y  PORTC
 
 // switches Z-pos
-#define pos_Z PA0
-#define pos_Z2 PA1
-
-#define PORT_pos_Z  PORTA
+// #define pos_Z PF2
+// #define PORT_pos_Z  PORTF
 
 // H-brug pinnen x/y
-#define pinHBrug_RechtsOm_X PF2
-#define pinHBrug_RechtsOm_Y PF3
-#define pinHBrug_LinksOm_X  PF4
-#define pinHBrug_LinksOm_Y  PF5
+#define pin_HBridgeRightX PC3
+#define pin_HBridgeRightY PC1
+#define pin_HBridgeLeftX  PC2
+#define pin_HBridgeLeftY  PC0
 
-#define portHBrug_X PORTF
-#define portHBrug_Y PORTF
+#define port_HBridgeX PORTC
+#define port_HBridgeY PORTC
 
 // H-brug pinnen z
-#define pinHBrug_RechtsOm_Z PA2
-#define pinHBrug_LinksOm_Z PA3
+#define pin_HBridgeRightZ PD7
+#define pin_HBridgeLeftZ PG2
 
-#define portHBrug_Z PORTA
+#define port_HBridgeZRight PORTD
+#define port_HBridgeZLeft PORTG
 
 // pin check
-#define PIN_pos_XY  PINB
-#define PIN_pos_Y  PINF
-#define PIN_pos_Z  PINA
+#define PIN_pos_XY  PINA
+#define PIN_pos_Y  PINC
+#define PIN_pos_Z  PINF
 
 
 // Keypad
@@ -105,6 +123,16 @@ extern volatile int heenTerug;
 #define COL_PIN  PINL
 #define COL_DDR  DDRL
 
+// Joystick
+#define pin_Switch_Joystick PB7
+#define PORT_Switch_Joystick PORTB
+#define PIN_Switch_Joystick PINB
+
+// ADC
+#define adcSamples 25
+#define zAxisResistance 0
+#define zAxisNoResistance 0
+
 // === Enums ===
 
 enum MagnetState {
@@ -115,39 +143,48 @@ enum MagnetState {
 // === Functieprototypes ===
 
 // Position Detection
-void xNuFinder(void);
-void yNuFinder(void);
+void x_pos_finder(void);
+void y_pos_finder(void);
 
 // Keypad Handling
 int keypad_getkey(void);
 void processKey(int key);
-void pickUp_and_DropOff_pos(void);
-void keypad_init(void);
+void pickup_dropoff_pos(void);
+void init_keypad(void);
 
 // Motor Control
-int motorX(int richting);
-int motorY(int richting);
-int motorZ(int opNeer);
+int motor_x_axis(int richting);
+int motor_y_axis(int richting);
+int motor_z_axis(int opNeer);
 
-void motorenUit(void);
+void motors_off(void);
 
 // Position / Direction Comparison
-int xNu_TOV_xEind(int nu, int eind);
-int yNu_TOV_yEind(int nu, int eind);
+int xNow_to_xEnd_comp(int nu, int eind);
+int yNow_to_yEnd_comp(int nu, int eind);
 
 // Homing & Coordination
-void homeSender(void);
-void coordSwitch(void);
+void homeing_program(void);
+void coord_switch(void);
 
 // Magnet Handling
-int oppakProgramma(enum MagnetState);
+int pickup_program(enum MagnetState);
 
 // Reset / End of Cycle
-void eindProgramma(void);
+void end_program(void);
 
 // Timer
-void init_timer1(void);
+void init_timer3(void);
 
+// Joystick
+int adc_read(int ch);
+
+int adc_average(uint8_t ch, int samples);
+
+void pwmX_stop(void);
+void pwmY_stop(void);
+void pwmX_start(void);
+void pwmY_start(void);
 
 
 // ---------- UART0 setup (logging) ----------

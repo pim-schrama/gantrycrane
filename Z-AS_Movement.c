@@ -4,95 +4,101 @@
 
 int coordSwitchCount = 0;
 
-void coordSwitch(void){
+void coord_switch(void){
                                                                                          printf("coord_switch\n");
     switch(coordSwitchCount){
 
         case 0:
-            xEind = xEindDropOf;
-            yEind = yEindDropOf;
-            if(!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
+            xEnd = xEndDropOff;
+            yEnd = yEndDropOff;
+            if(!(PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
                 // switch pressed = ON = two coordinates
                 coordSwitchCount = 1;
-                tweedeBlokjeNeer = 1;
+                secondObjectDown = 1;
             }
-            heenTerug = 2;
+            backAndForth = 2;
         break;
 
         case 1:
-            xEind = xEind2;
-            yEind = yEind2;
+            xEnd = xEnd2;
+            yEnd = yEnd2;
             coordSwitchCount = 2;
-            heenTerug = 1;
+            backAndForth = 1;
         break;
 
         case 2:
-            xEind = xEindDropOf2;
-            yEind = yEindDropOf2;
+            xEnd = xEndDropOff2;
+            yEnd = yEndDropOff2;
             coordSwitchCount = 1;
-            tweedeBlokjeNeer = 0;
-            heenTerug = 2;
+            secondObjectDown = 0;
+            backAndForth = 2;
         break;
     }
 }
 
 
-int oppakProgramma(enum MagnetState state){
-    if(state == Get) { portMagneet |= (1 << pinMagneet);                                             printf("magneet_aan\n");}
-    if(state == Drop) { portMagneet &= ~(1 << pinMagneet);                                           printf("magneet_uit\n");}
+int pickup_program(enum MagnetState state){
+    if(state == Get) { port_Magnet |= (1 << pin_Magnet);                                             printf("magneet_aan\n");}
+    if(state == Drop) { port_Magnet &= ~(1 << pin_Magnet);                                           printf("magneet_uit\n");}
     return 0;
 }
 
-void eindProgramma(void){
-                                                                                                     printf("Eindprogramma\n");
-    heenTerug = 1;
+void end_program(void){
+                                                                                                     printf("end_program\n");
+    backAndForth = 1;
     coordSwitchCount = 0;
-    tweedeBlokjeNeer = 0;
-    infoEindPosOpgehaald = 0;
-    infoEindPosOpgehaald2 = 0;
-    homeSender();
-    motorenUit();
-    startSlot = 0;
+    secondObjectDown = 0;
+    inputEndPosRetrieved = 0;
+    inputEndPosRetrieved2 = 0;
+    homeing_program();
+    motors_off();
+    startBlock = 0;
     homeSenderDone = 0;
-    startKnop = 0;
+    startButton = 0;
 }
 
-void zRoutine(opNeer){
+void z_axis_routine(opNeer){
                                                                                                     printf("Z_beneden\n");
-        while ((PIN_pos_Z & (1 << pos_Z))!=0){
-            portHBrug_Z |= (1 << pinHBrug_RechtsOm_Z);
+        while (currentZAxis < zAxisResistance){
+            ampereSensor = adc_average(3, adcSamples);
+            voltageZAxis = ampereSensor * (5.0 / 1023.0);
+            currentZAxis = (voltageZAxis - 2.5) / 0.185;
+                                                                                                    printf("ampere z-as = %.2f\n",currentZAxis);
+            port_HBridgeZRight |= (1 << pin_HBridgeRightZ);
         }
-        portHBrug_Z &= ~(1 << pinHBrug_RechtsOm_Z);
+        port_HBridgeZRight &= ~(1 << pin_HBridgeRightZ);
+        currentZAxis = 0;
 
-        oppakProgramma(opNeer); //object vast
-
-        while((PIN_pos_Z & (1 << pos_Z))==0) portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
-
-        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
+        pickup_program(opNeer); //object vast
                                                                                                      printf("Z_omhoog\n");
-        while ((PIN_pos_Z & (1 << pos_Z))!=0) {
-                portHBrug_Z |= (1 << pinHBrug_LinksOm_Z);
+        while (currentZAxis < zAxisResistance) {
+            ampereSensor = adc_average(3, adcSamples);
+            voltageZAxis = ampereSensor * (5.0 / 1023.0);
+            currentZAxis = (voltageZAxis - 2.5) / 0.185;
+                                                                                                    printf("ampere z-as = %.2f\n",currentZAxis);
+            port_HBridgeZLeft |= (1 << pin_HBridgeLeftZ);
         }
-        portHBrug_Z &= ~(1 << pinHBrug_LinksOm_Z);
+        port_HBridgeZLeft &= ~(1 << pin_HBridgeLeftZ);
+        currentZAxis = 0;
 
-        coordSwitch();
+        coord_switch();
 
 }
 
-int motorZ(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
-                                                                                                     printf("motorZ_in\n");
-    if(opNeer == 1) zRoutine(opNeer);
+int motor_z_axis(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
+                                                                                                     printf("motor_z_axis_in\n");
+    if(opNeer == 1) z_axis_routine(opNeer);
 
     if(opNeer == 2){
 
-        zRoutine(opNeer);
+        z_axis_routine(opNeer);
 
-        if((PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord))) {
+        if((PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
 
-            eindProgramma();
-        } else if((tweedeBlokjeNeer == 0) && (!(PIN_SwitchTweedeCoord & (1 << pinSwitchTweedeCoord)))) {
+            end_program();
+        } else if((secondObjectDown == 0) && (!(PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord)))) {
 
-            eindProgramma();
+            end_program();
         }
     }
     return 0;

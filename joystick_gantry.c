@@ -13,8 +13,12 @@ volatile int valueY = 0;
 volatile int adcX = 0;
 volatile int valueX = 0;
 
+int pwmStart = 0;
 
 int z = 0;
+
+int manualPrint = 0;
+
 
 void init_adc(void) {
     ADMUX = (1 << REFS0);                  // Vref = AVcc
@@ -29,8 +33,8 @@ void init_joystick(void) {
 
     init_adc();
 
-    centerY = adc_read(9);
-    centerX = adc_read(8);
+    centerY = adc_read(7);
+    centerX = adc_read(6);
 }
 
 int adc_read(int ch) {
@@ -93,17 +97,19 @@ void y_axis_manual(void){
         pwmY_stop();
     } else {
         pwmY_start();
-        if(valueY > 0){
-            DDRB &= ~(1<<PB5);
-            DDRB |= (1<<PB6);
-            OCR1A = (valueY);
-        }else{
-            DDRB &= ~(1<<PB5);
-            DDRB |= (1<<PB6);
-            OCR1B = (abs(valueY));
+
+        if (valueY > 0) {                 // Y-UP
+            DDRB |= (1 << PB5);           // enable OC1A
+            DDRB &= ~(1 << PB6);          // disable OC1B
+            OCR1A = valueY;
+        } else {                           // Y-DOWN
+            DDRB |= (1 << PB6);           // enable OC1B
+            DDRB &= ~(1 << PB5);          // disable OC1A
+            OCR1B = abs(valueY);
         }
     }
 }
+
 
 void z_axis_manual(void){
     if(!(PIN_Switch_Joystick & (1 << pin_Switch_Joystick))){
@@ -134,4 +140,21 @@ void z_axis_manual(void){
         while((PIN_Switch_Joystick & (1 << pin_Switch_Joystick)));
         _delay_ms(50);
     }
+}
+
+void manual_main(void){
+    if(manualPrint != 1){printf("manual in\n"); manualPrint = 1;}
+
+    if (pwmStart != 1){ pwmX_start(); pwmY_start(); pwmStart = 1;}
+
+    adcY = adc_read(7);
+    valueY = adcY - centerY;
+
+    adcX = adc_read(6);
+    valueX = adcX - centerX;
+
+    x_axis_manual();
+    y_axis_manual();
+    z_axis_manual();
+
 }

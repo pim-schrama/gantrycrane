@@ -4,6 +4,11 @@
 
 int coordSwitchCount = 0;
 
+int ampereSensor(int ampereSensor){
+    float voltageZAxis = ampereSensor * (5.0 / 1023.0);
+    return ((voltageZAxis - 2.5) / -0.185);
+}
+
 void coord_switch(void){
                                                                                          printf("coord_switch\n");
     switch(coordSwitchCount){
@@ -57,24 +62,20 @@ void end_program(void){
     startButton = 0;
 }
 
-void z_axis_routine(opNeer){
+void z_axis_routine(upDown){
                                                                                                     printf("Z_beneden\n");
-        while (currentZAxis < zAxisResistance){
-            ampereSensor = adc_average(3, adcSamples);
-            voltageZAxis = ampereSensor * (5.0 / 1023.0);
-            currentZAxis = (voltageZAxis - 2.5) / 0.185;
+        while (currentZAxis < resistanceCurrentZAxis){
+            currentZAxis = ampereSensor(adc_average(1, adcSamples));
                                                                                                     printf("ampere z-as = %.2f\n",currentZAxis);
             port_HBridgeZRight |= (1 << pin_HBridgeRightZ);
         }
         port_HBridgeZRight &= ~(1 << pin_HBridgeRightZ);
         currentZAxis = 0;
 
-        pickup_program(opNeer); //object vast
+        pickup_program(upDown); //object vast
                                                                                                      printf("Z_omhoog\n");
-        while (currentZAxis < zAxisResistance) {
-            ampereSensor = adc_average(3, adcSamples);
-            voltageZAxis = ampereSensor * (5.0 / 1023.0);
-            currentZAxis = (voltageZAxis - 2.5) / 0.185;
+        while (currentZAxis < resistanceCurrentZAxis) {
+            currentZAxis = ampereSensor(adc_average(1, adcSamples));
                                                                                                     printf("ampere z-as = %.2f\n",currentZAxis);
             port_HBridgeZLeft |= (1 << pin_HBridgeLeftZ);
         }
@@ -85,13 +86,13 @@ void z_axis_routine(opNeer){
 
 }
 
-int motor_z_axis(int opNeer) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
+int motor_z_axis(int upDown) {  //links-/rechts-om zorgen bij de z-as voor en beweging om-hoog/-laag.
                                                                                                      printf("motor_z_axis_in\n");
-    if(opNeer == 1) z_axis_routine(opNeer);
+    if(upDown == 1) z_axis_routine(upDown);
 
-    if(opNeer == 2){
+    if(upDown == 2){
 
-        z_axis_routine(opNeer);
+        z_axis_routine(upDown);
 
         if((PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
 

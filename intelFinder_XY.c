@@ -82,27 +82,27 @@ void y_pos_finder(void) {
     if ((PIN_pos_XY & (1 << pos_Y1))) {
         _delay_ms(60);
         yNow = 1;
-                                                                         printf("yNow_1\n");
+                                                                         //printf("yNow_1\n");
     }
     if ((PIN_pos_Y & (1 << pos_Y2))) {
         _delay_ms(60);
         yNow = 2;
-                                                                         printf("yNow_2\n");
+                                                                         //printf("yNow_2\n");
     }
     if ((PIN_pos_Y & (1 << pos_Y3))) {
         _delay_ms(60);
         yNow = 3;
-                                                                         printf("yNow_3\n");
+                                                                         //printf("yNow_3\n");
     }
     if ((PIN_pos_XY  & (1 << pos_Y4))) {
         _delay_ms(60);
         yNow = 4;
-                                                                         printf("yNow_4\n");
+                                                                         //printf("yNow_4\n");
     }
     if ((PIN_pos_Y  & (1 << pos_Y5))) {
         _delay_ms(60);
         yNow = 5;
-                                                                         printf("yNow_5\n");
+                                                                         //printf("yNow_5\n");
     }
 }
 
@@ -245,7 +245,7 @@ void processKey(int key) {
 void pickup_dropoff_pos(void) {
                                                                                      printf("Waiting for coordinates...\n");
     // ✅ block until both coordinate pairs are filled
-    if(!(PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
+    if((PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
         while (!inputEndPosRetrieved) {
             int key = keypad_getkey();
             if (key != -1 && key != lastKey) {
@@ -255,14 +255,11 @@ void pickup_dropoff_pos(void) {
             if (key == -1) {
                 lastKey = -1;      // reset latch when released
             }
-
         }
-
     }
 
-
     // ✅ block until both coordinate pairs are filled
-    if((PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
+    if(!(PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))) {
         while (!(inputEndPosRetrieved && inputEndPosRetrieved2)) {
             int key = keypad_getkey();
             if (key != -1 && key != lastKey) {
@@ -272,12 +269,9 @@ void pickup_dropoff_pos(void) {
             if (key == -1) {
                 lastKey = -1;      // reset latch when released
             }
-
         }
     }
-
                                                                                          printf("All coordinates received!\n");
-
     startBlock = 1;
 }
 

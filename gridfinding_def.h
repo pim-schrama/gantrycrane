@@ -40,31 +40,29 @@ extern volatile int valueY;
 extern volatile int adcX;
 extern volatile int valueX;
 
-extern volatile int ampereSensor;
 extern volatile float currentZAxis;
-extern volatile float voltageZAxis;
 
 // === Pinnen manual ===
-#define pin_Manual PF3
+#define pin_Manual PF2
 #define PORT_Manual PORTF
 #define PIN_Manual PINF
 
 // === Pinnen start ===
-#define pin_StartButton PF1
+#define pin_StartButton PF0
 #define port_StartButton PORTF
 #define PIN_StartButton PINF
 
 // === Pinnen magneet ===
-#define pin_Magnet PF6
+#define pin_Magnet PF4
 #define port_Magnet PORTF
 
 // === Pinnen noodknop ===
-#define pin_EmergencyButton PF0
-#define port_EmergencyButton PORTF
-#define PIN_EmergencyButton  PINF
+#define pin_EmergencyButton PK0
+#define port_EmergencyButton PORTK
+#define PIN_EmergencyButton  PINK
 
 // === Pinnen switch tweede coordinaten ===
-#define pin_SwitchSecondCoord PF5
+#define pin_SwitchSecondCoord PF3
 #define port_SwitchSecondCoord PORTF
 #define PIN_SwitchSecondCoord  PINF
 
@@ -130,8 +128,8 @@ extern volatile float voltageZAxis;
 
 // ADC
 #define adcSamples 25
-#define zAxisResistance 0
-#define zAxisNoResistance 0
+#define resistanceCurrentZAxis 0
+#define zAxisNoResistance 1.202
 
 // === Enums ===
 
@@ -145,6 +143,7 @@ enum MagnetState {
 // Position Detection
 void x_pos_finder(void);
 void y_pos_finder(void);
+int ampereSensor(int ampereSensor);
 
 // Keypad Handling
 int keypad_getkey(void);
@@ -153,15 +152,15 @@ void pickup_dropoff_pos(void);
 void init_keypad(void);
 
 // Motor Control
-int motor_x_axis(int richting);
-int motor_y_axis(int richting);
-int motor_z_axis(int opNeer);
+int motor_x_axis(int direction);
+int motor_y_axis(int direction);
+int motor_z_axis(int upDown);
 
 void motors_off(void);
 
 // Position / Direction Comparison
-int xNow_to_xEnd_comp(int nu, int eind);
-int yNow_to_yEnd_comp(int nu, int eind);
+int xNow_to_xEnd_comp(int now, int end);
+int yNow_to_yEnd_comp(int now, int end);
 
 // Homing & Coordination
 void homeing_program(void);
@@ -174,9 +173,18 @@ int pickup_program(enum MagnetState);
 void end_program(void);
 
 // Timer
-void init_timer3(void);
+//void init_timer3(void);
 
 // Joystick
+void manual_main(void);
+
+void init_adc(void);
+void init_joystick(void);
+
+void x_axis_manual(void);
+void y_axis_manual(void);
+void z_axis_manual(void);
+
 int adc_read(int ch);
 
 int adc_average(uint8_t ch, int samples);

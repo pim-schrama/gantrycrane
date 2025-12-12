@@ -4,6 +4,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
+//#include "librarys/LiquidCrystal_I2C.h"
 #include "gridfinding_def.h"
 
 // === Definitie globale variabelen ===
@@ -15,27 +16,46 @@ volatile int backAndForth = 1;
 
 volatile int xNow = 0, yNow = 0;
 volatile int xEnd = 0, yEnd = 0;
-volatile int xEndDropOff = 0, yEndDropOff = 0;
-
-volatile int xEnd2 = 0, yEnd2 = 0;
-volatile int xEndDropOff2 = 0, yEndDropOff2 = 0;
-
-volatile int secondObjectDown = 0;
 
 // Statusflags
 volatile int inputEndPosRetrieved = 0;
-volatile int inputEndPosRetrieved2 = 0;
 
 volatile float currentZAxis = 0;
 
+volatile int blockCountRecieved = 0;
+volatile int blocks = 0;
+volatile int coordCount = 0, coordCountPickDrop = 0;
+
+volatile int xEndArr[MAX_BLOCKS + 1];
+volatile int yEndArr[MAX_BLOCKS + 1];
+volatile int xEndDropOffArr[MAX_BLOCKS + 1];
+volatile int yEndDropOffArr[MAX_BLOCKS + 1];
+
 // === Crane init ===
 void init_Crane(void) {
-    DDRF = (1 << pin_Magnet);                                                  // PF6 = output (magneet), rest input
-    DDRC = (1 << PC0) | (1 << PC1) | (1 << PC2) | (1 << PC3);                  // PC0–PC3 = outputs (H-brug X/Y)
-    DDRD = (1 << PD0) | (1 << PD1) | (1 << PD2) | (1 << PD3) | (1 << PD7);     // PD0–PD3 = keypad rows, PD7 = Z H-brug
-    DDRG = (1 << PG2);                                                         // PG2 = output (H-brug Z linksom)
-    DDRA = 0x00;                                                               // alle PA0–PA7 = inputs (positie-switches)
-    DDRB = 0x00;                                                               // niet gebruikt, alles input
+// ==== PORT F ====
+// Inputs: Manual, StartButton, SwitchSecondCoord
+DDRF &= ~((1 << pin_Manual) | (1 << pin_StartButton) | (1 << pin_SwitchSecondCoord));
+// Output: Magnet
+DDRF |=  (1 << pin_Magnet);
+// ==== PORT K ====
+// Input: EmergencyButton
+DDRK &= ~(1 << pin_EmergencyButton);
+// ==== PORT A ====
+// Inputs: X-position switches + Y2 + Y5
+DDRA &= ~((1 << pos_X1) | (1 << pos_X2) | (1 << pos_X3) | (1 << pos_X4) | (1 << pos_X5) | (1 << pos_Y2) | (1 << pos_Y5));
+// ==== PORT C ====
+// Inputs: remaining Y switches + keypad rows? (User did not mark rows as outputs)
+DDRC &= ~((1 << pos_Y1) | (1 << pos_Y3) | (1 << pos_Y4));
+// ==== PORT G ====
+// Outputs: H-bridge X
+DDRG |= (1 << pin_HBridgeRightX) | (1 << pin_HBridgeLeftX);
+// ==== PORT L ====
+// Outputs: H-bridge Y + H-bridge Z
+DDRL |= (1 << pin_HBridgeRightY) | (1 << pin_HBridgeLeftY)  | (1 << pin_HBridgeRightZ) | (1 << pin_HBridgeLeftZ);
+// ==== PORT B ====
+// Input: Joystick switch
+DDRB &= ~(1 << pin_Switch_Joystick);
 
                                                              printf("init_crane_out\n");
 }
@@ -73,28 +93,31 @@ void init_PCINT_interupt(void){
 
     PCICR  |= (1 << PCIE1);       // Enable PCINT[15:8] (PORTJ)
     PCMSK1 |= (1 << PCINT10);     // Enable PCINT10 on PJ1
+    PCMSK1 |= (1 << PCINT9);     // Enable PCINT9 on PJ0
     DDRJ &= ~(1 << DDJ1);         // PJ1 input
+    DDRJ &= ~(1 << DDJ0);         // PJ0 input
+
 
     sei();
                                                              printf("init_PCINT_out\n");
 }
-
 /*
 // === Timer ISR ===
 ISR(TIMER3_OVF_vect) {
-    x_pos_finder();     // X/Y positie check
-    y_pos_finder();
 
     TCNT3 = 64911;      // reset timer
     //TCNT3 = 45536;
 }
 */
-
 ISR(PCINT1_vect)
 {
     //detected change in PCINT[15:8]
-    x_pos_finder();     // X/Y positie check
-    y_pos_finder();
+    if (PINJ & (1 << PINJ1)) {
+        x_pos_finder();     // X/Y positie check
+    }
+    if (PINJ & (1 << PINJ0)) {
+        y_pos_finder();
+    }
 }
 
 ISR(PCINT2_vect)
@@ -114,7 +137,7 @@ ISR(PCINT2_vect)
         }
     }
 
-   /* if (PINK & (1 << PINK1)){
+/*  if (PINK & (1 << PINK1)){
         // PK1 is HIGH doe niks
     }else{
         motors_off();
@@ -130,12 +153,12 @@ int main(void) {
     stdout = &usart0_stdout; // enable printf to UART;
 
                                                                                      printf("Boot OK\n");
-
     init_Crane();
     init_PCINT_interupt();
     //init_timer3();
     init_keypad();
     init_joystick();
+    init_adc();
 
     pwmX_stop();
     pwmY_stop();
@@ -150,22 +173,13 @@ int main(void) {
 
             if (homeSenderDone == 0) homeing_program();
 
-            if((inputEndPosRetrieved == 0) || (inputEndPosRetrieved2 == 0)) pickup_dropoff_pos();
+            if(!blockCountRecieved) {
+                block_count();
+            }
 
-            if(!(PIN_SwitchSecondCoord & (1 << pin_SwitchSecondCoord))){
+            if(inputEndPosRetrieved == 0) pickup_dropoff_pos();
 
-                if ((inputEndPosRetrieved == 1) && (startBlock == 1) && (inputEndPosRetrieved2 == 1)) {
-
-                   while((xNow != xEnd) || (yNow != yEnd)){
-                        motor_x_axis(xNow_to_xEnd_comp(xNow, xEnd));
-                        motor_y_axis(yNow_to_yEnd_comp(yNow, yEnd));
-                   }
-
-                   port_HBridgeX &= ~((1 << pin_HBridgeRightX) | (1 << pin_HBridgeLeftX));
-                   port_HBridgeY &= ~((1 << pin_HBridgeRightY) | (1 << pin_HBridgeLeftY));
-
-                }
-            }else if ((inputEndPosRetrieved == 1) && (startBlock == 1)) {
+            if ((inputEndPosRetrieved == 1) && (startBlock == 1)) {
 
                 while((xNow != xEnd) || (yNow != yEnd)){
                     motor_x_axis(xNow_to_xEnd_comp(xNow, xEnd));
@@ -177,6 +191,7 @@ int main(void) {
             }
 
             if ((xNow == xEnd) && (yNow == yEnd) && (startBlock == 1)) {
+                                                                                                        printf("motorenZ\n");
                 motor_z_axis(backAndForth);
 
             }
@@ -196,7 +211,3 @@ int main(void) {
 //       (moet in alle motor loops met een break; of een lijn die de code uit zet.
 //       extra: een max tijd dat de magneet aan mag bijven tegen oververhitting.
 //       extra: gelijdelijke stop voor motor (tegen het schudden.)
-
-//       pos_Z & pos_Z2 inpluggen en een led ipv magneet
-
-

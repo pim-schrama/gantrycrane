@@ -31,8 +31,6 @@ void init_joystick(void) {
 
     //PORT_Switch_Joystick |= (1 << pin_Switch_Joystick);
 
-    init_adc();
-
     centerY = adc_read(7);
     centerX = adc_read(6);
 }
@@ -113,32 +111,32 @@ void y_axis_manual(void){
 
 void z_axis_manual(void){
     if(!(PIN_Switch_Joystick & (1 << pin_Switch_Joystick))){
-        _delay_ms(50);
+        DEBOUNCE50;
                                                     printf("z_manual\n");
         switch(z){
         case 2:
-            port_HBridgeZRight &= ~(1 << pin_HBridgeRightZ);
-            port_HBridgeZLeft &= ~(1 << pin_HBridgeLeftZ);
+            port_HBridgeZ &= ~(1 << pin_HBridgeRightZ);
+            port_HBridgeZ &= ~(1 << pin_HBridgeLeftZ);
             z = 0;
                                                     printf("z_manual_stil\n");
         break;
 
         case 0:
-            port_HBridgeZRight &= ~(1 << pin_HBridgeRightZ);
-            port_HBridgeZLeft |= (1 << pin_HBridgeLeftZ);
+            port_HBridgeZ &= ~(1 << pin_HBridgeRightZ);
+            port_HBridgeZ |= (1 << pin_HBridgeLeftZ);
             z = 1;
                                                     printf("z_manual_links\n");
         break;
 
         case 1:
-            port_HBridgeZLeft &= ~(1 << pin_HBridgeLeftZ);
-            port_HBridgeZRight |= (1 << pin_HBridgeRightZ);
+            port_HBridgeZ &= ~(1 << pin_HBridgeLeftZ);
+            port_HBridgeZ |= (1 << pin_HBridgeRightZ);
             z = 2;
                                                     printf("z_manual_rechts\n");
         break;
         }
         while((PIN_Switch_Joystick & (1 << pin_Switch_Joystick)));
-        _delay_ms(50);
+        DEBOUNCE50;
     }
 }
 

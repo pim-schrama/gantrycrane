@@ -81,6 +81,9 @@ void homeing_program(void) {
                                                                             printf("homeing_program_in\n");
     int homeX = 0 , homeY = 0;
 
+    x_pos_finder();
+    y_pos_finder();
+
     while(homeX != 1 || homeY != 1){
 
         if (xNow != 1){ port_HBridgeX |= (1 << pin_HBridgeLeftX);}
@@ -95,6 +98,10 @@ void homeing_program(void) {
 
         if (yNow == 1) {
             port_HBridgeY &= ~(1 << pin_HBridgeLeftY);
+            //  Tegen overshoot van de  switch
+            port_HBridgeY |= (1 << pin_HBridgeRightY);
+            _delay_ms(25);
+            port_HBridgeY &= ~(1 << pin_HBridgeRightY);
             homeY = 1;
         }
 
@@ -110,8 +117,7 @@ void homeing_program(void) {
 void motors_off(void){
     port_HBridgeX &= ~((1 << pin_HBridgeRightX) | (1 << pin_HBridgeLeftX));
     port_HBridgeY &= ~((1 << pin_HBridgeRightY) | (1 << pin_HBridgeLeftY));
-    port_HBridgeZRight &= ~(1 << pin_HBridgeRightZ);
-    port_HBridgeZLeft &= ~(1 << pin_HBridgeLeftZ);
+    port_HBridgeZ &= ~((1 << pin_HBridgeRightZ) | (1 << pin_HBridgeLeftZ));
     pwmX_stop();
     pwmY_stop();
 

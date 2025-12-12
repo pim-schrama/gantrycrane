@@ -13,16 +13,16 @@ extern volatile int yNow;
 extern volatile int xEnd;
 extern volatile int yEnd;
 
-extern volatile int xEndDropOff;
-extern volatile int yEndDropOff;
+//extern volatile int xEndDropOff;
+//extern volatile int yEndDropOff;
 
-extern volatile int xEnd2, yEnd2;
-extern volatile int xEndDropOff2, yEndDropOff2;
+//extern volatile int xEnd2, yEnd2;
+//extern volatile int xEndDropOff2, yEndDropOff2;
 
-extern volatile int secondObjectDown;
+//extern volatile int secondObjectDown;
 
 extern volatile int inputEndPosRetrieved;
-extern volatile int inputEndPosRetrieved2;
+//extern volatile int inputEndPosRetrieved2;
 extern volatile int homeSenderDone;
 
 extern volatile int startButton;
@@ -41,6 +41,21 @@ extern volatile int adcX;
 extern volatile int valueX;
 
 extern volatile float currentZAxis;
+
+extern volatile int blockCountRecieved;
+extern volatile int blocks;
+extern volatile int coordCount;
+extern volatile int coordCountPickDrop;
+
+extern volatile int xEndArr[];
+extern volatile int yEndArr[];
+extern volatile int xEndDropOffArr[];
+extern volatile int yEndDropOffArr[];
+
+// === Debounce ===
+#define DEBOUNCE40 _delay_ms(40)
+#define DEBOUNCE50 _delay_ms(50)
+#define DEBOUNCE60 _delay_ms(60)
 
 // === Pinnen manual ===
 #define pin_Manual PF2
@@ -74,11 +89,11 @@ extern volatile float currentZAxis;
 #define pos_X5 PA2
 
 // switches Y-pos
-#define pos_Y1 PA7
-#define pos_Y2 PC6
+#define pos_Y1 PC7
+#define pos_Y2 PA6
 #define pos_Y3 PC4
-#define pos_Y4 PA6
-#define pos_Y5 PC7
+#define pos_Y4 PC6
+#define pos_Y5 PA7
 
 #define port_pos_XY PORTA
 #define port_pos_Y  PORTC
@@ -88,20 +103,19 @@ extern volatile float currentZAxis;
 // #define PORT_pos_Z  PORTF
 
 // H-brug pinnen x/y
-#define pin_HBridgeRightX PC3
-#define pin_HBridgeRightY PC1
-#define pin_HBridgeLeftX  PC2
-#define pin_HBridgeLeftY  PC0
+#define pin_HBridgeRightX PG1
+#define pin_HBridgeRightY PL6  //PG1
+#define pin_HBridgeLeftX  PG0
+#define pin_HBridgeLeftY  PL7   //PG0
 
-#define port_HBridgeX PORTC
-#define port_HBridgeY PORTC
+#define port_HBridgeX PORTG
+#define port_HBridgeY PORTL     //PORTG
 
 // H-brug pinnen z
-#define pin_HBridgeRightZ PD7
-#define pin_HBridgeLeftZ PG2
+#define pin_HBridgeRightZ PL5   //PL7
+#define pin_HBridgeLeftZ PL4    //PL6
 
-#define port_HBridgeZRight PORTD
-#define port_HBridgeZLeft PORTG
+#define port_HBridgeZ PORTL     //PORTL
 
 // pin check
 #define PIN_pos_XY  PINA
@@ -113,9 +127,9 @@ extern volatile float currentZAxis;
 #define ROWS 4
 #define COLS 4
 
-#define ROW_PORT PORTD
-#define ROW_PIN  PIND
-#define ROW_DDR  DDRD
+#define ROW_PORT PORTC
+#define ROW_PIN  PINC
+#define ROW_DDR  DDRC
 
 #define COL_PORT PORTL
 #define COL_PIN  PINL
@@ -127,9 +141,11 @@ extern volatile float currentZAxis;
 #define PIN_Switch_Joystick PINB
 
 // ADC
-#define adcSamples 25
-#define resistanceCurrentZAxis 0
-#define zAxisNoResistance 1.202
+#define adcSamples 50
+#define resistanceCurrentZAxis 0 // >1.202 V <1.202
+#define zAxisNoResistance 1750 //1.502  //1.202
+
+#define MAX_BLOCKS 99
 
 // === Enums ===
 
@@ -143,7 +159,7 @@ enum MagnetState {
 // Position Detection
 void x_pos_finder(void);
 void y_pos_finder(void);
-int ampereSensor(int ampereSensor);
+float ampereSensor(int pin, int samples);
 
 // Keypad Handling
 int keypad_getkey(void);
